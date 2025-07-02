@@ -8,8 +8,7 @@ const AuthLayout = () => {
     return <Navigate to="/" />;
   }
   return (
-    <div>
-      <h1>AuthLayout {token}</h1>
+    <div className="w-full h-screen flex items-center justify-center">
       <Outlet />
     </div>
   );
