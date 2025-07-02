@@ -1,6 +1,7 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../contexts/AuthProvider";
+import Header from "../components/Header";
 
 const DefaultLayout = () => {
   const { token } = useAuth();
@@ -9,7 +10,7 @@ const DefaultLayout = () => {
   }
   return (
     <div>
-      <h1>DefaultLayout</h1>
+      <Header />
       <Outlet />
     </div>
   );
