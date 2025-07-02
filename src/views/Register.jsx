@@ -1,19 +1,50 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { VTextInput } from "../components/VTextInput";
+import { register } from "../api/auth";
 
 const Register = () => {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     username: "",
     password: "",
   });
 
-  const handleRegister = (e) => {
+  const clearFormData = () => {
+    setFormData({
+      email: "",
+      username: "",
+      password: "",
+    });
+    setPasswordConfirmation("");
+  };
+
+  const handleRegister = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setLoading(true);
+
+    if (formData.password !== passwordConfirmation) {
+      setError("Password not matches");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await register(formData);
+      setError("");
+      clearFormData();
+      navigate("/login");
+    } catch (err) {
+      const message =
+        err?.response?.data?.message || "Failed creating account.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,8 +56,9 @@ const Register = () => {
         <form
           onSubmit={handleRegister}
           className="space-y-5"
-          autoComplete="off'"
+          autoComplete="off"
         >
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <div>
             <label
               htmlFor="email"
@@ -101,9 +133,11 @@ const Register = () => {
 
           <button
             type="submit"
-            className="cursor-pointer w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
+            className={`cursor-pointer w-full ${
+              loading ? "bg-gray-800 " : "bg-gray-600"
+            }  hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300`}
           >
-            Save account
+            {loading ? "Creating your account..." : "Save account"}
           </button>
         </form>
 

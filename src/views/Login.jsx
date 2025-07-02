@@ -1,16 +1,42 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { VTextInput } from "../components/VTextInput";
+import { login } from "../api/auth";
+import { useAuth } from "../contexts/AuthProvider";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { setToken } = useAuth();
 
-  const handleLogin = (e) => {
+  const clearFormData = () => {
+    setFormData({
+      username: "",
+      password: "",
+    });
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setLoading(true);
+
+    try {
+      const response = await login(formData);
+      setToken(response.data.tokenJwt);
+      setError("");
+      clearFormData();
+    } catch (err) {
+      const message =
+        err?.response?.data?.message || "Failed accessing account.";
+      setError(message);
+      //clearFormData();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,6 +47,7 @@ const Login = () => {
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-5" autoComplete="off">
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <div>
             <label
               htmlFor="username"
@@ -60,9 +87,12 @@ const Login = () => {
 
           <button
             type="submit"
-            className="cursor-pointer w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
+            className={`cursor-pointer w-full  hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300 ${
+              loading ? "bg-gray-800" : "bg-gray-600"
+            }`}
+            disabled={loading}
           >
-            Login
+            {loading ? "Loading..." : "Login"}
           </button>
         </form>
 
